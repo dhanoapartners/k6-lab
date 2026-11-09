@@ -10,7 +10,7 @@ Companion repos: [practice-lab](https://github.com/dhanoapartners/practice-lab) 
 
 The live site is a shared training environment with a rate limit of **100 API requests per 10 seconds per IP**.
 
-- **Light scripts** (01, 02, 05) are sized to stay far under it, so they're safe on the live site.
+- **Light scripts** (01, 02, 05, 06) are sized to stay far under it, so they're safe on the live site.
 - **Heavy scripts** (03, 04) **refuse to run against the live site**. Run them against a local copy (`LAB_URL=http://localhost:8788`).
 - Never point a load test at a site you don't own or have permission to test.
 
@@ -22,6 +22,7 @@ The live site is a shared training environment with a rate limit of **100 API re
 | `02-shopping-journey.ts` | User journey | Groups, a custom `Trend` metric, checks on business values (the SAVE10 discount), **correlation** (a sign-in token reused in the next request) | Live (1 user) or local (5 users) |
 | `03-load.ts` | Load | `stages` to ramp up, hold and ramp down; p95/p99 latency gates | Local only |
 | `04-stress-and-spike.ts` | Stress + spike | Two `scenarios` in one script, `ramping-vus` vs `ramping-arrival-rate`, reading where a system bends | Local only |
+| `06-steady-5min.ts` | Steady load, 5 min | `constant-vus` held long enough to see trends; `name` tags to group URLs; the **HTML report** | Live or local |
 | `05-chaos-and-errors.ts` | Resilience | `X-Chaos: 1` (latency and random 503s), custom `Rate` metrics, telling expected errors from real ones | Live or local |
 
 ## Setup
@@ -49,11 +50,12 @@ LAB_URL=http://localhost:8788 k6 run --env SCENARIO=spike scripts/04-stress-and-
 - **Thresholds are the pass/fail gate.** A ✓ or ✗ next to each one. If any fails, k6 exits with an error and CI goes red.
 - **p95, not the average.** "95% of requests finished within X ms." Averages hide the slow requests users actually feel.
 - **`http_req_failed`**: the share of failed requests. Even 1% is a lot at scale.
+- **The HTML report.** Add `K6_WEB_DASHBOARD=true K6_WEB_DASHBOARD_EXPORT=report.html` before `k6 run` to save charts of the whole run. It needs a run of at least about half a minute; `06-steady-5min.ts` is made for it.
 - **Checks** are assertions on each response. Unlike thresholds, a failing check doesn't stop the run on its own; add a `checks` threshold to make it count.
 
 ## Continuous integration
 
-`.github/workflows/k6.yml` typechecks the scripts, then runs the light scripts against the live site one at a time on every push, pull request and night. Each run writes a results table to the job summary and uploads the k6 JSON summary as an artifact.
+`.github/workflows/k6.yml` typechecks the scripts, then runs the light scripts against the live site one at a time on every push, pull request and night, and finishes with the 5-minute steady run. Each run writes a results table to the job summary; the steady run also uploads its **HTML report** as an artifact.
 
 ## AI with k6
 
