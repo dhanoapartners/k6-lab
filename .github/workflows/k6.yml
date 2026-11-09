@@ -1,0 +1,63 @@
+# Runs the light k6 scripts against the live Practice Lab on every push, PR and night.
+# Thresholds are the pass/fail gate: if one fails, k6 exits non-zero and the job goes red.
+# Heavy scripts (03-load, 04-stress-and-spike) are local-only and are not run here.
+name: k6
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: '29 10 * * *' # daily, 10:29 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  typecheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+
+  k6:
+    needs: typecheck
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      max-parallel: 1 # one script at a time keeps us well under the live site's rate limit
+      matrix:
+        script: [01-smoke, 02-shopping-journey, 05-chaos-and-errors]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: grafana/setup-k6-action@v1
+      - name: Run ${{ matrix.script }}
+        run: |
+          mkdir -p results
+          k6 run --summary-export results/${{ matrix.script }}.json scripts/${{ matrix.script }}.ts
+      - name: Job summary
+        if: ${{ !cancelled() }}
+        run: |
+          f=results/${{ matrix.script }}.json
+          [ -f "$f" ] || exit 0
+          {
+            echo "### k6: ${{ matrix.script }}"
+            echo ""
+            echo "| Metric | Value |"
+            echo "|---|---|"
+            jq -r '.metrics | to_entries[] | select(.key|test("^(http_req_duration|http_req_failed|checks|iterations|order_place_duration|chaos_503_rate|real_error_rate)$")) |
+              "| \(.key) | \(.value | if has("p(95)") then "p95 \(.["p(95)"]|floor) ms, avg \(.avg|floor) ms" elif has("value") then "\(.value*100|floor)%" elif has("count") then "\(.count)" else "-" end) |"' "$f"
+          } >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: k6-${{ matrix.script }}
+          path: results/
+          retention-days: 14
