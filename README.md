@@ -2,6 +2,15 @@
 
 [![k6](https://github.com/dhanoapartners/k6-lab/actions/workflows/k6.yml/badge.svg)](https://github.com/dhanoapartners/k6-lab/actions/workflows/k6.yml)
 
+## What this demonstrates
+
+*By Avneet Dhanoa (QualityFirstQA LLC). Part of a five-repo portfolio; start at [practice-lab](https://github.com/dhanoapartners/practice-lab).*
+
+- **The full set of performance test types:** smoke, user journey, load, stress, spike, chaos and steady state, each with pass/fail thresholds.
+- **Realistic scripting:** correlation (a sign-in token reused across requests), custom metrics, checks on business values, tagged URLs.
+- **Responsible load testing:** heavy scripts refuse to run against the shared live site.
+- **CI:** the light scripts run in GitHub Actions; the 5-minute steady test exports an HTML dashboard.
+
 Training scripts for **[k6](https://k6.io)**, Grafana's open-source load testing tool, run against **[Practice Lab](https://www.dhanoapartners.com)**. Written in TypeScript, which k6 runs directly.
 
 Companion repos: [practice-lab](https://github.com/dhanoapartners/practice-lab) (Playwright) and [ai-agents-lab](https://github.com/dhanoapartners/ai-agents-lab) (MCP and skills).
