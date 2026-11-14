@@ -15,6 +15,8 @@ Training scripts for **[k6](https://k6.io)**, Grafana's open-source load testing
 
 Companion repos: [practice-lab](https://github.com/dhanoapartners/practice-lab) (Playwright) and [ai-agents-lab](https://github.com/dhanoapartners/ai-agents-lab) (MCP and skills).
 
+> **Teaching this as a lab?** [`HANDOUT.md`](HANDOUT.md) is a guided, hands-on student worksheet — smoke, journey, load/stress/spike, chaos and the HTML dashboard — with checkpoints to tick along the way. It explains performance testing with a rush-hour traffic analogy (VUs, thresholds, p95).
+
 ## Read this first: be kind to the live site
 
 The live site is a shared training environment with a rate limit of **100 API requests per 10 seconds per IP**.
