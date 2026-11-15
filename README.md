@@ -17,6 +17,8 @@ Companion repos: [practice-lab](https://github.com/dhanoapartners/practice-lab) 
 
 > **Teaching this as a lab?** [`HANDOUT.md`](HANDOUT.md) is a guided, hands-on student worksheet — smoke, journey, load/stress/spike, chaos and the HTML dashboard — with checkpoints to tick along the way. It explains performance testing with a rush-hour traffic analogy (VUs, thresholds, p95).
 
+> **New to the repo?** [`ARCHITECTURE.md`](ARCHITECTURE.md) has a diagram and a folder-by-folder guide to how everything fits together.
+
 ## Read this first: be kind to the live site
 
 The live site is a shared training environment with a rate limit of **100 API requests per 10 seconds per IP**.
